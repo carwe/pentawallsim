@@ -3,6 +3,7 @@ set listenip 0.0.0.0
 set xdim 16
 set ydim 15
 set scale 25
+set minscale 1
 set maxscale 60
 
 # ###################################################################
@@ -48,7 +49,7 @@ proc decodergbsocketline {rgbsocket line} {
 			# puts $rgbsocket "01$::rgb_version"
 			return 0
 		}
-		02 {
+		02 { # single pixel
 			scan $paket "%02x%02x%02x%02x%02x" x y r g b
 			set color [format "#%02x%02x%02x" $r $g $b]
 
@@ -61,8 +62,9 @@ proc decodergbsocketline {rgbsocket line} {
 			} else {
 				paintpixel $x $y $color
 			}
+			updatesurface
 		}
-		03 {
+		03 { # full frame
 			if { [string length $paket] != [expr {$::xdim*$::ydim*3*2}] } {
 				puts $rgbsocket "bad type-03-paket recieved, expected [expr {$::xdim*$::ydim*3*2}] bytes (for $::xdim * $::ydim pixels), got [string length $paket] bytes"
 				puts  "bad type-03-paket recieved, expected [expr {$::xdim*$::ydim*3*2}] bytes (for $::xdim * $::ydim pixels), got [string length $paket] bytes"
@@ -77,6 +79,7 @@ proc decodergbsocketline {rgbsocket line} {
 					paintpixel $i $j [format "#%02x%02x%02x" $r $g $b]
 				}
 			}
+			updatesurface
 		}
 		default {
 			return 0
@@ -86,41 +89,37 @@ proc decodergbsocketline {rgbsocket line} {
 }
 
 proc paintpixel {x y color} {
-	$::photosurface put $color -to [expr { ((($x-1)*$::scale)+2) }] [expr { ((($y-1)*$::scale)+2) }] [expr { $x*$::scale +2 }] [expr { $y*$::scale +2 }]
+	$::hiddensurface put $color -to [expr { $x+1 }] [expr { $y+1 }] [expr { $x+2 }] [expr { $y+2 }]
 	return
 }
 
 proc fillscreen {color} {
-	$::photosurface put $color -to 2 2 [expr { $::xdim*$::scale +2 }] [expr { $::ydim*$::scale +2 }]
-	#for {set i 1} {$i <= $::xdim} {incr i} {
-	#	for {set j 1} {$j <= $::ydim} {incr j} {
-	#		paintpixel $i $j $color
-	#	}
-	#}
+	$::hiddensurface put $color -to 2 2 [expr { $::xdim +2 }] [expr { $::ydim +2 }]
 	return
 }
 
 proc fillrow {row color} {
-	$::photosurface put $color -to 2 [expr { ((($row-1)*$::scale)+2) }] [expr { $::xdim*$::scale +2 }] [expr { $row*$::scale +2 }]
+	$::hiddensurface put $color -to 2 [expr { $row+1 }] [expr { $::xdim´+2 }] [expr { $row +2 }]
 	return
 }
 
 proc fillcolumn {column color} {
-	$::photosurface put $color -to [expr { ((($column-1)*$::scale)+2) }] 2 [expr { $column*$::scale +2 }] [expr { $::ydim*$::scale +2 }]
-	#for {set j 1} {$j <= $::ydim} {incr j} {
-	#	paintpixel $column $j $color
-	#}
+	$::hiddensurface put $color -to [expr { $column +1 }] 2 [expr { $column +2 }] [expr { $::ydim +2 }]
 	return
 }
 
 proc changescale {amount} {
 	set oldscale $::scale
-	set ::scale [expr { min($::maxscale,max(1,($::scale + $amount))) }]
+	set ::scale [expr { min($::maxscale,max($minscale,($::scale + $amount))) }]
 	if { $oldscale != $::scale} {
-		deletewindow
-		createwindow
+		updatewindow
 	}
 	return
+}
+
+proc updatewindow {} {
+	deletewindow
+	createwindow
 }
 
 proc createwindow {} {
@@ -128,16 +127,22 @@ proc createwindow {} {
 	set height [expr {$::ydim * $::scale}]
 	pack [canvas .screen -bg black -width $width -height $height] -fill both -expand 1
 	# Zeichenbereich erstellen
-	set ::photosurface [image create photo -width [expr {$width+2}] -height [expr {$height+2}] -palette 256/256/256]
+	set ::displaysurface [image create photo -width [expr {$width+2}] -height [expr {$height+2}] -palette 256/256/256]
 	# Zeichenbereich auf Bildschirm bringen
-	.screen create image 0 0 -anchor nw -image $::photosurface
+	.screen create image 0 0 -anchor nw -image $::displaysurface
 	wm title . "rgbwall scale $::scale"
 	return
 }
 
 proc deletewindow {} {
-	.screen delete ::photosurface
+	.screen delete ::displaysurface
 	destroy .screen
+	return
+}
+
+proc updatesurface {} {
+	$::displaysurface copy $::hiddensurface -zoom $::scale $::scale -from 2 2 [expr {$::xdim + 2}] [expr {$::ydim + 2}] -to 2 2
+	update idletasks
 	return
 }
 
@@ -147,7 +152,13 @@ proc every {ms body} {
 	return
 }
 
-createwindow
+proc init {} {
+	set ::hiddensurface [image create photo -width [expr {$::xdim+2}] -height [expr {$::ydim+2}] -palette 256/256/256]
+	createwindow
+	socket -server incomingconnection -myaddr $::listenip $::listenport
+	
+	return
+}
 
-# los gehts - Port öffnen
-socket -server incomingconnection -myaddr $listenip $listenport
+
+init
