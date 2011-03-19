@@ -4,7 +4,7 @@ set xdim 16
 set ydim 15
 set scale 25
 set minscale 1
-set maxscale 60
+set maxscale 40
 
 # ###################################################################
 
@@ -110,7 +110,7 @@ proc fillcolumn {column color} {
 
 proc changescale {amount} {
 	set oldscale $::scale
-	set ::scale [expr { min($::maxscale,max($minscale,($::scale + $amount))) }]
+	set ::scale [expr { min($::maxscale,max($::minscale,($::scale + $amount))) }]
 	if { $oldscale != $::scale} {
 		updatewindow
 	}
@@ -120,6 +120,7 @@ proc changescale {amount} {
 proc updatewindow {} {
 	deletewindow
 	createwindow
+	updatesurface
 }
 
 proc createwindow {} {
