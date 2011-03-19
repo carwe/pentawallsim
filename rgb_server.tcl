@@ -54,7 +54,7 @@ proc decodergbsocketline {rgbsocket line} {
 			set color [format "#%02x%02x%02x" $r $g $b]
 
 			if { $x==0 && $y==0 } {
-				fillscreen $color
+				paintframe $color
 			} elseif { $x==0 } {
 				fillrow $y $color
 			} elseif { $y==0 } {
@@ -71,14 +71,18 @@ proc decodergbsocketline {rgbsocket line} {
 				return 0
 			}
 			#puts "type-03-paket recieved"
+			set frame {}
 			for {set j 1} {$j <= $::ydim} {incr j} {
 				set row [string range $paket [expr {($j-1) * $::xdim * 3 * 2}] [expr {(($j) * $::xdim * 3 * 2)-1}]]
+				set temprow ""
 				for {set i 1} {$i <= $::xdim} {incr i} {
 					set pixel [string range $row [expr {($i-1) * 3 * 2}] [expr {(($i) * 3 * 2)-1}]]
 					scan $pixel "%02x%02x%02x" r g b
-					paintpixel $i $j [format "#%02x%02x%02x" $r $g $b]
+					append temprow "[format "#%02x%02x%02x" $r $g $b] "
 				}
+				lappend frame $temprow
 			}
+			paintframe $frame
 			updatesurface
 		}
 		default {
@@ -93,8 +97,9 @@ proc paintpixel {x y color} {
 	return
 }
 
-proc fillscreen {color} {
-	$::hiddensurface put $color -to 2 2 [expr { $::xdim +2 }] [expr { $::ydim +2 }]
+proc paintframe {frame} {
+	# takes a whole frame - or a single color, which it spreads to fullscreen
+	$::hiddensurface put $frame -to 2 2 [expr { $::xdim +2 }] [expr { $::ydim +2 }]
 	return
 }
 
