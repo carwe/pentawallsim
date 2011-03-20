@@ -104,7 +104,7 @@ proc paintframe {frame} {
 }
 
 proc fillrow {row color} {
-	$::hiddensurface put $color -to 2 [expr { $row+1 }] [expr { $::xdim´+2 }] [expr { $row +2 }]
+	$::hiddensurface put $color -to 2 [expr { $row+1 }] [expr { $::xdim +2 }] [expr { $row +2 }]
 	return
 }
 
