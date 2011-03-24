@@ -1,2 +1,7 @@
-this is a simulator for the rgbwall-hardware from c3d2
-it is written in tcl/tk
+This is pentawallsim
+
+A simulator for the RGB-wall from C3D2, Dresden, Germany.
+
+It behaves as much as possible like the real hardware (maybe the hardware is faster or slower, but the protocol should match).
+
+It is written in Tcl/Tk.
