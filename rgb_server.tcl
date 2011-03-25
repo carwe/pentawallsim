@@ -14,6 +14,10 @@ package require Tk
 
 bind . + {changescale +5}
 bind . - {changescale -1}
+bind . 7 {changescale -5}
+bind . 8 {changescale -1}
+bind . 9 {changescale +1}
+bind . 0 {changescale +5}
 
 wm resizable . 0 0
 
