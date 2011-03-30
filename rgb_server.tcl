@@ -8,7 +8,8 @@ set maxscale 40
 
 # ###################################################################
 
-set rgb_version "carwesimu rev 0"
+#set starttime [clock clicks -milliseconds]
+#set rgb_version "carwesimu rev 0"
 package require Tcl 8.5
 package require Tk
 
@@ -40,6 +41,7 @@ proc readrgbsocket {rgbsocket} {
 			puts "bad line in $rgbsocket: $line"
 			puts $rgbsocket "bad paket"
 		}
+		#puts [expr {[clock clicks -milliseconds] - $::starttime }]
 	}
 	return
 }
@@ -59,14 +61,16 @@ proc decodergbsocketline {rgbsocket line} {
 
 			if { $x==0 && $y==0 } {
 				paintframe $color
+				updatesurface
 			} elseif { $x==0 } {
 				fillrow $y $color
+				updatesurface
 			} elseif { $y==0 } {
 				fillcolumn $x $color
+				updatesurface
 			} else {
 				paintpixel $x $y $color
 			}
-			updatesurface
 		}
 		03 { # full frame
 			if { [string length $paket] != [expr {$::xdim*$::ydim*3*2}] } {
@@ -166,9 +170,9 @@ proc init {} {
 	set ::hiddensurface [image create photo -width [expr {$::xdim+2}] -height [expr {$::ydim+2}] -palette 256/256/256]
 	createwindow
 	socket -server incomingconnection -myaddr $::listenip $::listenport
-	
 	return
 }
 
 
 init
+every 100 updatesurface ;# otherwise, singlepixel-updates wouldn't be visible - and updatesurface after every incoming pixel is too slow

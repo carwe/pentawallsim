@@ -13,12 +13,12 @@ Pakettypen, client->server;server->client:
 
 putpixel:
 Paket-Inhalt ist im Format xxyyrrggbb, je zwei Byte beschreiben als ASCII-Zeichen hexadezimal die x-, y-Koordinate sowie den r-,g- und b-Anteil
-z.B. Pixel (16;15) soll maximales Gelb sein: 1015ffff00
-insgesamt muss dann gesendet werden: 020304ffff00\r\n
+z.B. Pixel (16;15) soll maximales Gelb (255;255;0) sein: 1510ffff00
+insgesamt muss dann gesendet werden: 021510ffff00\r\n
 
 
 putframe:
-Paket-Inhalt besteht aus x*y * rrggbb in hexadezimaler Schreibweise (r-,g- und b-Anteil) ohne Trennung hintereinander gesendet, der Server trennt die Zeilen anhand seiner Konfiguration
+Paket-Inhalt besteht aus x*y * rrggbb in ascii-hexadezimaler Schreibweise (r-,g- und b-Anteil) ohne Trennung hintereinander gesendet, der Server trennt die Zeilen anhand seiner Konfiguration
 z.B.: 03ffffff000000ffffff000000... ...000000ffffff\r\n
 
 
