@@ -47,7 +47,7 @@ proc rgb_fillscreen { r g b } {
 proc rgb_fadescreenh {r1 g1 b1 r2 g2 b2} {
 	# fills the screen with rows of colors, fading from one color to the other
 	for {set i 1} {$i <= $::ydim} {incr i} {
-		set color [format "%02x%02x%02x" [expr { int( $r1 + ($i * ( ($r2 - $r1) / $::ydim)) ) }] [expr { int( $g1 + ($i * ( ($g2 - $g1) / $::ydim)) ) }] [expr { int( $b1 + ($i * ( ($b2 - $b1) / $::ydim)) ) }]]
+		set color [format "%02x%02x%02x" [expr { int( $r1 + max( -255,($i * ( ($r2 - $r1) / $::ydim))) ) }] [expr { int( $g1 + max( -255,($i * ( ($g2 - $g1) / $::ydim))) ) }] [expr { int( $b1 +   max(-255,($i * ( ($b2 - $b1) / $::ydim)) )   ) }]]
 		for {set j 1} {$j <= $::xdim} {incr j} {
 			append frame $color
 		}
