@@ -39,8 +39,12 @@ proc readrgbsocket {rgbsocket} {
 	} else {
 		if {! [decodergbsocketline $rgbsocket $line] } {
 			puts "bad line in $rgbsocket: $line"
-			puts $rgbsocket "bad paket"
+			puts $rgbsocket "bad"
+		} else {
+			puts $rgbsocket "ok"
 		}
+
+		flush $rgbsocket
 		#puts [expr {[clock clicks -milliseconds] - $::starttime }]
 	}
 	return
