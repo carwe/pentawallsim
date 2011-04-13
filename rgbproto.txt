@@ -1,27 +1,47 @@
-Jedes Paket beginnt mit 2 Bytes, jeweils 0-F in ASCII, die den Pakettyp definieren; jedes Paket endet am n�chsten Zeilenumbruch (0x0d0a).
-XXpaket\r\n
+Protokoll der Pentawall
+=======================
 
-Pakettypen, client->server;server->client:
+Folgende Liste beschreibt das Verhalten von sebseb7/pentawall - in carwe/pentawallsim sind nur die Opcodes 02 und 03 implementiert.
 
-00 ... reserved;reserved
-01 ... version-request;version-reply
-02 ... putpixel;-
-03 ... putframe;reply (done/error)
-04 ... get option;reply (value/error {if unknown})
-05 ... set option;reply  (ok/error {if read-only})
+Das Protokoll basiert auf einem Socket (aktuell TCP/IP an 172.22.99.6:1338), auf dem Pakete gesendet werden, dabei beginnt jedes Paket mit einem Opcode und endet mit einem Zeilenumbruch (0x0d0a). (XXpaket\r\n)
+Je zwei Byte auf dem Socket beschreiben ein Byte des Protokolls. Auf dem Socket werden nur ASCII-Zeichen gesendet (konkret "0-9a-fA-F\r\n").
+Die Opcodes gehen also von 00 bis FF und jedes andere Zeichen auch.
+
+Die Koordinaten beginnen links oben mit 1;1 - der x-Wert geht nach rechts und y dementsprechend nach unten. Wenn komplette Frames gesendet werden, beginnt man mit 1;1 und sendet dann Zeile um Zeile.
+
+TCP-Verbindungen werden bei Nichtbenutzung nach einiger Zeit (5 Minuten) getrennt. Wenn es nötig ist, die Verbindung lännger offen zu halten, kann ein keep-alive gesendet werden.
+
+Es wird immer das höchste Prioritätslevel angezeigt, das von einer aktiven Verbindung ausgewählt ist. Neue Verbindungen starten auf Level 1, das niedrigste Level ist Level 0, das angezeigt wird, wenn keine Verbindungen bestehen. Level 0 wird gespeichert und wird nach einem Crash oder Restart des Server-Prozesses wiederhergestellt, jedoch nicht nach einem Abschalten des Hosts (tmpfs).
+
+Die Maximaldauer von Aufnahmen (Opcode 05) ist auf 5 Minuten begrenzt. 
+
+Opcodes
+-------
+
+Opcode		Client->Server		Server->Client:
+
+01		keep-alive		"ok"
+02		put pixel		"ok"/"bad"
+03		put frame		"ok"/"bad"
+04		set priority		"ok"
+05		start record		"ok"
+06		stop record		ID (Dateiname)
 
 
-putpixel:
+put pixel:
+----------
 Paket-Inhalt ist im Format xxyyrrggbb, je zwei Byte beschreiben als ASCII-Zeichen hexadezimal die x-, y-Koordinate sowie den r-,g- und b-Anteil
 z.B. Pixel (16;15) soll maximales Gelb (255;255;0) sein: 1510ffff00
 insgesamt muss dann gesendet werden: 021510ffff00\r\n
 
 
-putframe:
-Paket-Inhalt besteht aus x*y * rrggbb in ascii-hexadezimaler Schreibweise (r-,g- und b-Anteil) ohne Trennung hintereinander gesendet, der Server trennt die Zeilen anhand seiner Konfiguration
+put frame:
+----------
+Paket-Inhalt besteht aus x*y * rrggbb in ASCII-hexadezimaler Schreibweise (r-,g- und b-Anteil) ohne Trennung hintereinander gesendet (Zeilen->Spalten), der Server trennt die Zeilen anhand seiner Konfiguration.
 z.B.: 03ffffff000000ffffff000000... ...000000ffffff\r\n
 
 
-options:
-format; x/y
-bit-count of colors (3*8)
+set priority:
+-------------
+Setzt das Level, in das die Daten dieser TCP-Verbindung geleitet werden. Das höchste von irgend einer Verbindung gewählte Level wird angezeigt.
+z.B.: 0403\r\n
