@@ -44,7 +44,7 @@ proc readrgbsocket {rgbsocket} {
 			puts $rgbsocket "ok"
 		}
 
-		flush $rgbsocket
+		catch { flush $rgbsocket }
 		#puts [expr {[clock clicks -milliseconds] - $::starttime }]
 	}
 	return
