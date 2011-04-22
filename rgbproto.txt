@@ -11,7 +11,7 @@ Die Koordinaten beginnen links oben mit 1;1 - der x-Wert geht nach rechts und y 
 
 TCP-Verbindungen werden bei Nichtbenutzung nach einiger Zeit (5 Minuten) getrennt. Wenn es nötig ist, die Verbindung lännger offen zu halten, kann ein keep-alive gesendet werden.
 
-Es wird immer das höchste Prioritätslevel angezeigt, das von einer aktiven Verbindung ausgewählt ist. Neue Verbindungen starten auf Level 1, das niedrigste Level ist Level 0, das angezeigt wird, wenn keine Verbindungen bestehen. Level 0 wird gespeichert und wird nach einem Crash oder Restart des Server-Prozesses wiederhergestellt, jedoch nicht nach einem Abschalten des Hosts (tmpfs).
+Es wird immer das höchste Prioritätslevel angezeigt, das von einer aktiven Verbindung ausgewählt ist. Neue Verbindungen starten auf Level 1, das niedrigste Level ist Level 0, welches angezeigt wird, wenn keine Verbindungen bestehen. Level 0 wird gespeichert und wird nach einem Crash oder Restart des Server-Prozesses wiederhergestellt, jedoch nicht nach einem Abschalten des Hosts (tmpfs). Die Daten von höheren Leveln bleiben nicht erhalten, wenn man auf ein niedrigeres Level wechselt und dann wieder auf das höhere Level.
 
 Die Maximaldauer von Aufnahmen (Opcode 05) ist auf 5 Minuten begrenzt. 
 
@@ -26,6 +26,11 @@ Opcode		Client->Server		Server->Client:
 04		set priority		"ok"
 05		start record		"ok"
 06		stop record		ID (Dateiname)
+
+
+keep-alive
+----------
+Um den Timeout der TCP-Verbindungen zu umgehen, kann ein noop/keep-alive gesendet werden: 01\r\n
 
 
 put pixel:
