@@ -31,8 +31,8 @@ Opcode		Client->Server		Server->Client:
 put pixel:
 ----------
 Paket-Inhalt ist im Format xxyyrrggbb, je zwei Byte beschreiben als ASCII-Zeichen hexadezimal die x-, y-Koordinate sowie den r-,g- und b-Anteil
-z.B. Pixel (16;15) soll maximales Gelb (255;255;0) sein: 1510ffff00
-insgesamt muss dann gesendet werden: 021510ffff00\r\n
+z.B. Pixel (16;15) soll maximales Gelb (255;255;0) sein: 100fffff00
+insgesamt muss dann gesendet werden: 02100fffff00\r\n
 
 
 put frame:
