@@ -85,9 +85,7 @@ proc remote_updatekeystate {} {
 	set remote_keystate [format "09%02x%02x%02x" $::remote_id $remote_keystate $::remote_akkustate]
 	foreach clientsocket [array names ::clientconnections] {
 		puts $clientsocket $remote_keystate
-		puts "pushed keystate to $clientsocket"
-		}
-	puts "[puttime] $remote_keystate"
+	}
 }
 
 proc remote_subscribe {rgbsocket} {
