@@ -151,11 +151,9 @@ proc decodergbsocketline {rgbsocket line} {
 				paintframe $color
 				updatesurface
 			} elseif { $x==0 } {
-				fillrow $y $color
-				updatesurface
+				puts "[puttime] warning: malformed type-02-paket, x==0 (expected (x==0 AND y==0) OR (x!=0 AND y!=0))"
 			} elseif { $y==0 } {
-				fillcolumn $x $color
-				updatesurface
+				puts "[puttime] warning: malformed type-02-paket, y==0 (expected (x==0 AND y==0) OR (x!=0 AND y!=0))"
 			} else {
 				paintpixel $x $y $color
 			}
@@ -227,16 +225,6 @@ proc paintpixel {x y color} {
 proc paintframe {frame} {
 	# takes a whole frame - or a single color, which it spreads to fullscreen
 	$::hiddensurface put $frame -to 2 2 [expr { $::xdim +2 }] [expr { $::ydim +2 }]
-	return
-}
-
-proc fillrow {row color} {
-	$::hiddensurface put $color -to 2 [expr { $row+1 }] [expr { $::xdim +2 }] [expr { $row +2 }]
-	return
-}
-
-proc fillcolumn {column color} {
-	$::hiddensurface put $color -to [expr { $column +1 }] 2 [expr { $column +2 }] [expr { $::ydim +2 }]
 	return
 }
 
