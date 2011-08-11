@@ -1,4 +1,5 @@
-# + - 7 8 9 0 are keys to zoom the simulator-window
+# keys to zoom the simulator-window: + - 7 8 9 0
+# keys to send remote-events to subscriped clients: w a s d h j k l
 
 set listenport 1338
 set listenip 0.0.0.0
@@ -9,7 +10,6 @@ set minscale 1
 set maxscale 40
 
 set remote_id 1
-set remote_akkustate 255
 array set remote_keys {
 	up     w
 	left   a
@@ -28,6 +28,8 @@ package require Tk
 
 # ###################################################################
 # remote functions
+
+set remote_akkustate 255
 
 # bind keys to button-events
 foreach arrayitem [array names remote_keys] {
@@ -135,7 +137,7 @@ proc decodergbsocketline {rgbsocket line} {
 	set paket [string range $line 2 end]
 	#puts "[puttime] recieved: $type $paket"
 	switch $type {
-		01 { # keep alive - not implemented
+		01 { # keep alive - not implemented, not needed
 			return 1
 		}
 		02 { # single pixel
@@ -260,9 +262,7 @@ proc createwindow {} {
 	set width [expr {$::xdim * $::scale}]
 	set height [expr {$::ydim * $::scale}]
 	pack [canvas .screen -bg black -width $width -height $height] -fill both -expand 1
-	# Zeichenbereich erstellen
 	set ::displaysurface [image create photo -width [expr {$width+2}] -height [expr {$height+2}] -palette 256/256/256]
-	# Zeichenbereich auf Bildschirm bringen
 	.screen create image 0 0 -anchor nw -image $::displaysurface
 	wm title . "rgbwall scale $::scale"
 	return
@@ -304,6 +304,5 @@ proc init {} {
 	return
 }
 
-# here we go:
 init
 every 100 updatesurface ;# otherwise, singlepixel-updates wouldn't be visible - and updatesurface after every incoming pixel is too slow
