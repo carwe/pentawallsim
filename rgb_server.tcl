@@ -1,5 +1,5 @@
 # keys to zoom the simulator-window: + - 7 8 9 0
-# keys to send remote-events to subscriped clients: w a s d h j k l
+# keys to send remote-events to subscribed clients: w a s d h j k l
 
 set listenport 1338
 set listenip 0.0.0.0
