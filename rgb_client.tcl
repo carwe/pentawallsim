@@ -1,5 +1,4 @@
 set serverip 127.0.0.1
-#set serverip 172.22.99.6
 set serverport 1338
 set xdim 16
 set ydim 15
