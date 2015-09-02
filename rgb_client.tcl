@@ -23,7 +23,7 @@ proc every {ms body} {
 
 proc rgb_nextfade {} {
 	# every call to this function fills screen with another gray-tone
-	set ::fadestate [expr {($::fadestate + 1) % 256 }]
+	set ::fadestate [expr {($::fadestate + 4) % 256 }]
 	rgb_fillscreen $::fadestate $::fadestate $::fadestate
 	return
 }
